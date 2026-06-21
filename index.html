@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>날씨별 음식 추천</title>
+    <title>팔도 실시간 날씨 음식 추천</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <div class="header-inner">
-            <h1>날씨별 음식 추천</h1>
+            <h1>팔도 실시간 날씨 음식 추천</h1>
             <button class="theme-toggle" type="button" aria-pressed="false" aria-label="다크 모드로 전환">
                 <span class="theme-icon" aria-hidden="true">🌙</span>
                 <span class="theme-label">다크 모드</span>
@@ -17,19 +17,27 @@
         </div>
     </header>
     <main>
-        <div class="weather-selection">
-            <h2>오늘 날씨는 어떤가요?</h2>
-            <div class="weather-options">
-                <button class="weather-btn" data-weather="sunny">☀️ 맑음</button>
-                <button class="weather-btn" data-weather="rainy">🌧️ 비</button>
-                <button class="weather-btn" data-weather="snowy">❄️ 눈</button>
-                <button class="weather-btn" data-weather="cloudy">☁️ 흐림</button>
+        <section class="weather-selection" aria-labelledby="region-title">
+            <div class="section-heading">
+                <h2 id="region-title">한국 8개 권역 실시간 날씨</h2>
+                <p>권역을 선택하면 현재 기상 정보를 불러와 날씨에 맞는 음식 5가지를 추천합니다.</p>
             </div>
-        </div>
-        <div class="recommendation-container">
-            <h2>오늘의 추천 메뉴</h2>
-            <div id="food-recommendation"></div>
-        </div>
+            <div class="region-grid" id="region-grid" aria-label="권역 선택"></div>
+        </section>
+
+        <section class="status-panel" id="status-panel" aria-live="polite">
+            <div class="status-copy">
+                <span class="status-eyebrow">현재 선택</span>
+                <h2 id="selected-region">권역을 선택하세요</h2>
+                <p id="weather-summary">실시간 날씨 정보를 기준으로 추천 메뉴가 표시됩니다.</p>
+            </div>
+            <div class="weather-metrics" id="weather-metrics" hidden></div>
+        </section>
+
+        <section class="recommendation-container" aria-labelledby="recommendation-title">
+            <h2 id="recommendation-title">추천 음식 5가지</h2>
+            <div id="food-recommendation" class="food-grid empty-state">권역을 선택하면 추천 음식이 나타납니다.</div>
+        </section>
     </main>
     <script src="main.js"></script>
 </body>

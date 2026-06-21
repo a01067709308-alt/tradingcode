@@ -15,6 +15,8 @@
     --button-bg: #2e6f52;
     --button-bg-hover: #245a43;
     --button-text: #ffffff;
+    --accent: #d56f3e;
+    --accent-soft: #fff0e8;
     --card-shadow: rgba(31, 42, 36, 0.14);
     --border: rgba(31, 42, 36, 0.14);
 }
@@ -30,12 +32,15 @@
     --button-bg: #4ca47b;
     --button-bg-hover: #5db98d;
     --button-text: #08100c;
+    --accent: #f0a06b;
+    --accent-soft: rgba(240, 160, 107, 0.16);
     --card-shadow: rgba(0, 0, 0, 0.38);
     --border: rgba(237, 244, 240, 0.16);
 }
 
 body {
-    font-family: sans-serif;
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background-color: var(--page-bg);
     color: var(--text);
     line-height: 1.6;
@@ -50,7 +55,7 @@ header {
 }
 
 .header-inner {
-    max-width: 800px;
+    max-width: 1040px;
     margin: 0 auto;
     display: flex;
     align-items: center;
@@ -59,7 +64,12 @@ header {
 }
 
 h1 {
-    font-size: clamp(1.45rem, 4vw, 2rem);
+    font-size: clamp(1.4rem, 4vw, 2rem);
+    line-height: 1.2;
+}
+
+h2 {
+    line-height: 1.25;
 }
 
 .theme-toggle {
@@ -82,55 +92,189 @@ h1 {
 }
 
 main {
-    padding: 1rem;
-    max-width: 800px;
+    width: min(1040px, calc(100% - 2rem));
     margin: 0 auto;
+    padding: 1.25rem 0 2rem;
 }
 
-.weather-selection {
-    text-align: center;
-    margin-bottom: 2rem;
+.weather-selection,
+.status-panel,
+.recommendation-container {
+    margin-bottom: 1.25rem;
 }
 
-.weather-selection h2,
-.recommendation-container h2 {
+.section-heading {
     margin-bottom: 1rem;
 }
 
-.weather-options {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
+.section-heading p,
+#weather-summary {
+    color: var(--muted-text);
 }
 
-.weather-btn {
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 5px;
-    background: var(--button-bg);
-    color: var(--button-text);
+.region-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.region-btn {
+    min-height: 5rem;
+    padding: 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-bg);
+    color: var(--text);
     cursor: pointer;
+    text-align: left;
+    box-shadow: 0 3px 12px var(--card-shadow);
+    transition: transform 0.2s ease, border-color 0.2s ease, background-color 0.25s ease;
+}
+
+.region-btn:hover,
+.region-btn.active {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+
+.region-btn strong,
+.region-btn span {
+    display: block;
+}
+
+.region-btn strong {
+    font-size: 1rem;
+}
+
+.region-btn span {
+    color: var(--muted-text);
+    font-size: 0.9rem;
+}
+
+.status-panel {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-bg);
+    box-shadow: 0 4px 16px var(--card-shadow);
+}
+
+.status-eyebrow,
+.food-tag {
+    display: inline-flex;
+    width: fit-content;
+    margin-bottom: 0.35rem;
+    padding: 0.18rem 0.45rem;
+    border-radius: 999px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.weather-metrics {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(7rem, 1fr));
+    gap: 0.6rem;
+    min-width: 18rem;
+}
+
+.metric {
+    padding: 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--page-bg);
+}
+
+.metric span {
+    display: block;
+    color: var(--muted-text);
+    font-size: 0.78rem;
     font-weight: 700;
-    transition: background 0.3s ease, transform 0.2s ease;
 }
 
-.weather-btn:hover {
-    background: var(--button-bg-hover);
-    transform: translateY(-1px);
+.metric strong {
+    display: block;
+    font-size: 1.05rem;
 }
 
-.recommendation-container {
-    text-align: center;
+.recommendation-container h2 {
+    margin-bottom: 0.85rem;
 }
 
-#food-recommendation {
-    margin-top: 1rem;
+.food-grid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+.food-card {
+    min-height: 9.5rem;
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--panel-bg);
+    box-shadow: 0 4px 16px var(--card-shadow);
+    transition: transform 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.food-card:hover {
+    transform: translateY(-3px);
+}
+
+.food-card h3 {
+    margin-bottom: 0.45rem;
+    font-size: 1.05rem;
+}
+
+.food-card p {
+    color: var(--muted-text);
+    font-size: 0.92rem;
+}
+
+.empty-state,
+.loading-state,
+.error-state {
+    display: block;
+    padding: 1rem;
+    border: 1px dashed var(--border);
+    border-radius: 8px;
+    color: var(--muted-text);
+    background: var(--panel-bg);
+}
+
+.error-state {
+    color: #c84343;
+}
+
+@media (max-width: 860px) {
+    .region-grid,
+    .food-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .status-panel {
+        flex-direction: column;
+    }
+
+    .weather-metrics {
+        min-width: 0;
+    }
 }
 
 @media (max-width: 520px) {
     .header-inner {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .region-grid,
+    .food-grid,
+    .weather-metrics {
+        grid-template-columns: 1fr;
     }
 }
