@@ -1,4 +1,3 @@
-
 class FoodCard extends HTMLElement {
   constructor() {
     super();
@@ -8,12 +7,13 @@ class FoodCard extends HTMLElement {
     template.innerHTML = `
       <style>
         .food-card {
-          background: #fff;
+          background: var(--panel-bg, #fff);
           border-radius: 10px;
-          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 4px 16px var(--card-shadow, rgba(0, 0, 0, 0.1));
+          border: 1px solid var(--border, transparent);
           padding: 1.5rem;
           text-align: center;
-          transition: transform 0.3s ease;
+          transition: transform 0.3s ease, background-color 0.25s ease, border-color 0.25s ease;
         }
 
         .food-card:hover {
@@ -29,12 +29,12 @@ class FoodCard extends HTMLElement {
         .food-card h3 {
           margin: 1rem 0 0.5rem;
           font-size: 1.5rem;
-          color: #333;
+          color: var(--text, #333);
         }
 
         .food-card p {
             font-size: 1.1rem;
-            color: #666;
+            color: var(--muted-text, #666);
         }
       </style>
       <div class="food-card">
@@ -49,6 +49,41 @@ class FoodCard extends HTMLElement {
 }
 
 customElements.define('food-card', FoodCard);
+
+const THEME_STORAGE_KEY = 'weather-food-theme';
+const root = document.documentElement;
+const themeToggle = document.querySelector('.theme-toggle');
+const themeIcon = document.querySelector('.theme-icon');
+const themeLabel = document.querySelector('.theme-label');
+
+const getInitialTheme = () => {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+        return savedTheme;
+    }
+
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
+const applyTheme = (theme) => {
+    const isDark = theme === 'dark';
+
+    root.dataset.theme = theme;
+    themeToggle.setAttribute('aria-pressed', String(isDark));
+    themeToggle.setAttribute('aria-label', isDark ? '화이트 모드로 전환' : '다크 모드로 전환');
+    themeIcon.textContent = isDark ? '☀️' : '🌙';
+    themeLabel.textContent = isDark ? '화이트 모드' : '다크 모드';
+};
+
+applyTheme(getInitialTheme());
+
+themeToggle.addEventListener('click', () => {
+    const nextTheme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+
+    localStorage.setItem(THEME_STORAGE_KEY, nextTheme);
+    applyTheme(nextTheme);
+});
 
 const foodRecommendations = {
     sunny: {

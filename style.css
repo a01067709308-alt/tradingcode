@@ -1,22 +1,84 @@
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+:root {
+    color-scheme: light;
+    --page-bg: #f3f6f4;
+    --panel-bg: #ffffff;
+    --header-bg: #24332d;
+    --header-text: #ffffff;
+    --text: #1f2a24;
+    --muted-text: #5f6f66;
+    --button-bg: #2e6f52;
+    --button-bg-hover: #245a43;
+    --button-text: #ffffff;
+    --card-shadow: rgba(31, 42, 36, 0.14);
+    --border: rgba(31, 42, 36, 0.14);
+}
+
+[data-theme="dark"] {
+    color-scheme: dark;
+    --page-bg: #101513;
+    --panel-bg: #18211d;
+    --header-bg: #0b100e;
+    --header-text: #f5fbf7;
+    --text: #edf4f0;
+    --muted-text: #b5c3bb;
+    --button-bg: #4ca47b;
+    --button-bg-hover: #5db98d;
+    --button-text: #08100c;
+    --card-shadow: rgba(0, 0, 0, 0.38);
+    --border: rgba(237, 244, 240, 0.16);
+}
+
 body {
     font-family: sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
+    background-color: var(--page-bg);
+    color: var(--text);
     line-height: 1.6;
+    transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 header {
-    background: #333;
-    color: #fff;
-    padding: 1rem 0;
-    text-align: center;
+    background: var(--header-bg);
+    color: var(--header-text);
+    padding: 1rem;
+    transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.header-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+h1 {
+    font-size: clamp(1.45rem, 4vw, 2rem);
+}
+
+.theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2.4rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--header-text);
+    cursor: pointer;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.18);
 }
 
 main {
@@ -30,24 +92,32 @@ main {
     margin-bottom: 2rem;
 }
 
+.weather-selection h2,
+.recommendation-container h2 {
+    margin-bottom: 1rem;
+}
+
 .weather-options {
     display: flex;
     justify-content: center;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .weather-btn {
     padding: 0.5rem 1rem;
     border: none;
     border-radius: 5px;
-    background: #333;
-    color: #fff;
+    background: var(--button-bg);
+    color: var(--button-text);
     cursor: pointer;
-    transition: background 0.3s ease;
+    font-weight: 700;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .weather-btn:hover {
-    background: #555;
+    background: var(--button-bg-hover);
+    transform: translateY(-1px);
 }
 
 .recommendation-container {
@@ -56,4 +126,11 @@ main {
 
 #food-recommendation {
     margin-top: 1rem;
+}
+
+@media (max-width: 520px) {
+    .header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+    }
 }

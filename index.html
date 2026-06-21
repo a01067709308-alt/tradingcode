@@ -1,6 +1,5 @@
-
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +8,13 @@
 </head>
 <body>
     <header>
-        <h1>날씨별 음식 추천</h1>
+        <div class="header-inner">
+            <h1>날씨별 음식 추천</h1>
+            <button class="theme-toggle" type="button" aria-pressed="false" aria-label="다크 모드로 전환">
+                <span class="theme-icon" aria-hidden="true">🌙</span>
+                <span class="theme-label">다크 모드</span>
+            </button>
+        </div>
     </header>
     <main>
         <div class="weather-selection">
