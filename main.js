@@ -122,40 +122,27 @@ const scoreRestaurant = (category, hour, weatherType) => {
 /* ── Foursquare 별점 ── */
 const FSQ_KEY = 'CECZMJDH4XPRL4O5EODZKLLCGFNZ4JFSXMZNVM4D1EQ1CDU3';
 
-const fetchFoursquareRatings = async (lat, lon) => {
+const fetchFoursquareRating = async (name, lat, lon) => {
     try {
         const params = new URLSearchParams({
+            query: name,
             ll: `${lat},${lon}`,
-            radius: 800,
-            categories: '13000',
-            limit: 50,
-            fields: 'fsq_id,name,geocodes,rating,stats'
+            radius: 300,
+            limit: 1,
+            fields: 'rating,stats'
         });
         const res = await fetch(
             `https://api.foursquare.com/v3/places/search?${params}`,
             { headers: { 'Authorization': FSQ_KEY } }
         );
-        if (!res.ok) return [];
+        if (!res.ok) return null;
         const data = await res.json();
-        return data.results || [];
+        const place = data.results?.[0];
+        if (!place?.rating) return null;
+        return { rating: place.rating, count: place.stats?.total_ratings || 0 };
     } catch {
-        return [];
+        return null;
     }
-};
-
-const matchRating = (restaurant, fsqList) => {
-    let best = null, bestDist = Infinity;
-    for (const f of fsqList) {
-        const fLat = f.geocodes?.main?.latitude;
-        const fLon = f.geocodes?.main?.longitude;
-        if (!fLat || !fLon || !f.rating) continue;
-        const d = haversineM(restaurant.lat, restaurant.lon, fLat, fLon);
-        if (d < 100 && d < bestDist) {
-            bestDist = d;
-            best = { rating: f.rating, count: f.stats?.total_ratings || 0 };
-        }
-    }
-    return best;
 };
 
 const renderStars = (rating10) => {
@@ -242,9 +229,11 @@ const fetchRestaurants = async (lat, lon, hour, weatherType) => {
         .sort((a, b) => b.score !== a.score ? b.score - a.score : a.distance - b.distance)
         .slice(0, 3);
 
-    // Foursquare 별점 병렬 매칭
-    const fsqList = await fetchFoursquareRatings(lat, lon);
-    return scored.map(r => ({ ...r, ratingData: matchRating(r, fsqList) }));
+    // Foursquare 별점 — 이름 기반 병렬 검색
+    const ratings = await Promise.all(
+        scored.map(r => fetchFoursquareRating(r.name, r.lat, r.lon))
+    );
+    return scored.map((r, i) => ({ ...r, ratingData: ratings[i] }));
 };
 
 /* ── 위치명 ── */
