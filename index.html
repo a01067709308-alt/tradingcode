@@ -12,11 +12,11 @@
             <h1>팔도 실시간 날씨 음식 추천</h1>
             <div class="header-actions">
                 <button class="header-btn" type="button" id="contact-toggle" aria-label="제휴문의">
-                    <span aria-hidden="true">✉️</span>
+                    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
                     <span class="header-btn-label">제휴문의</span>
                 </button>
                 <button class="header-btn" type="button" id="comments-toggle" aria-label="댓글">
-                    <span aria-hidden="true">💬</span>
+                    <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
                     <span class="header-btn-label">댓글</span>
                 </button>
                 <button class="theme-toggle" type="button" aria-pressed="false" aria-label="다크 모드로 전환">
@@ -52,7 +52,7 @@
     </main>
 
     <!-- 제휴문의 모달 -->
-    <div class="modal-overlay" id="contact-modal" hidden role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+    <div class="modal-overlay" id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
         <div class="modal">
             <div class="modal-header">
                 <h2 id="contact-modal-title">제휴문의 · 광고문의</h2>
@@ -89,7 +89,7 @@
     </div>
 
     <!-- 댓글 모달 -->
-    <div class="modal-overlay" id="comments-modal" hidden role="dialog" aria-modal="true" aria-labelledby="comments-modal-title">
+    <div class="modal-overlay" id="comments-modal" role="dialog" aria-modal="true" aria-labelledby="comments-modal-title">
         <div class="modal modal-wide">
             <div class="modal-header">
                 <h2 id="comments-modal-title">댓글</h2>

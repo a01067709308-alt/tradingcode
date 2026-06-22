@@ -260,13 +260,13 @@ const loadDisqus = () => {
 };
 
 const openModal = (modal) => {
-    modal.hidden = false;
+    modal.classList.add('is-open');
     document.body.style.overflow = 'hidden';
     modal.querySelector('.modal-close').focus();
 };
 
 const closeModal = (modal) => {
-    modal.hidden = true;
+    modal.classList.remove('is-open');
     document.body.style.overflow = '';
 };
 
@@ -291,6 +291,6 @@ document.querySelectorAll('.modal-overlay').forEach((overlay) => {
 
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-        [contactModal, commentsModal].forEach((m) => { if (!m.hidden) closeModal(m); });
+        [contactModal, commentsModal].forEach((m) => { if (m.classList.contains('is-open')) closeModal(m); });
     }
 });
