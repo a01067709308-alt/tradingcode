@@ -119,6 +119,55 @@ const scoreRestaurant = (category, hour, weatherType) => {
     return { score, reason };
 };
 
+/* ── Foursquare 별점 ── */
+const FSQ_KEY = 'CECZMJDH4XPRL4O5EODZKLLCGFNZ4JFSXMZNVM4D1EQ1CDU3';
+
+const fetchFoursquareRatings = async (lat, lon) => {
+    try {
+        const params = new URLSearchParams({
+            ll: `${lat},${lon}`,
+            radius: 800,
+            categories: '13000',
+            limit: 50,
+            fields: 'fsq_id,name,geocodes,rating,stats'
+        });
+        const res = await fetch(
+            `https://api.foursquare.com/v3/places/search?${params}`,
+            { headers: { 'Authorization': FSQ_KEY } }
+        );
+        if (!res.ok) return [];
+        const data = await res.json();
+        return data.results || [];
+    } catch {
+        return [];
+    }
+};
+
+const matchRating = (restaurant, fsqList) => {
+    let best = null, bestDist = Infinity;
+    for (const f of fsqList) {
+        const fLat = f.geocodes?.main?.latitude;
+        const fLon = f.geocodes?.main?.longitude;
+        if (!fLat || !fLon || !f.rating) continue;
+        const d = haversineM(restaurant.lat, restaurant.lon, fLat, fLon);
+        if (d < 100 && d < bestDist) {
+            bestDist = d;
+            best = { rating: f.rating, count: f.stats?.total_ratings || 0 };
+        }
+    }
+    return best;
+};
+
+const renderStars = (rating10) => {
+    const r5 = Math.round(rating10 / 2 * 2) / 2;
+    const full = Math.floor(r5);
+    const half = r5 % 1 === 0.5;
+    const empty = 5 - full - (half ? 1 : 0);
+    return '<span class="star-on">★</span>'.repeat(full) +
+        (half ? '<span class="star-half">★</span>' : '') +
+        '<span class="star-off">☆</span>'.repeat(empty);
+};
+
 /* ── 카카오 API ── */
 const KAKAO_KEY = '803fc99d6c59c84dd43e09d5815dcf8b';
 
@@ -171,7 +220,7 @@ const overpassSearch = async (lat, lon) => {
         }));
 };
 
-/* ── 음식점 검색 + 날씨·시간 정렬 → top 3 ── */
+/* ── 음식점 검색 + 날씨·시간 정렬 + 별점 → top 3 ── */
 const fetchRestaurants = async (lat, lon, hour, weatherType) => {
     let items = [];
     try {
@@ -185,17 +234,17 @@ const fetchRestaurants = async (lat, lon, hour, weatherType) => {
     if (items.length === 0) return [];
 
     // 날씨·시간 점수 부여 후 정렬
-    return items
+    const scored = items
         .map(r => {
             const { score, reason } = scoreRestaurant(r.category, hour, weatherType);
             return { ...r, score, reason };
         })
-        .sort((a, b) => {
-            // 점수 내림차순, 동점이면 거리 오름차순
-            if (b.score !== a.score) return b.score - a.score;
-            return a.distance - b.distance;
-        })
+        .sort((a, b) => b.score !== a.score ? b.score - a.score : a.distance - b.distance)
         .slice(0, 3);
+
+    // Foursquare 별점 병렬 매칭
+    const fsqList = await fetchFoursquareRatings(lat, lon);
+    return scored.map(r => ({ ...r, ratingData: matchRating(r, fsqList) }));
 };
 
 /* ── 위치명 ── */
@@ -293,6 +342,12 @@ const renderRestaurants = (restaurants, temp, weatherType) => {
                     <span class="rest-category">${r.category}</span>
                     <span class="rest-reason">${r.reason}</span>
                 </div>
+                ${r.ratingData ? `
+                <div class="rest-rating">
+                    <span class="stars">${renderStars(r.ratingData.rating)}</span>
+                    <span class="rating-score">${r.ratingData.rating.toFixed(1)}<span class="rating-max">/10</span></span>
+                    ${r.ratingData.count > 0 ? `<span class="rating-count">(${r.ratingData.count.toLocaleString()}명)</span>` : ''}
+                </div>` : ''}
                 ${r.address ? `<p class="rest-address">📌 ${r.address}</p>` : ''}
                 ${r.phone ? `<p class="rest-phone">📞 ${r.phone}</p>` : ''}
                 ${r.url ? `<a class="rest-link" href="${r.url}" target="_blank" rel="noopener noreferrer">

@@ -343,6 +343,26 @@ main {
     font-weight: 700;
 }
 
+.rest-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0.3rem 0 0.1rem;
+}
+
+.stars { font-size: 1rem; letter-spacing: 0.05em; line-height: 1; }
+.star-on  { color: #f5b800; }
+.star-half { color: #f5b800; opacity: 0.5; }
+.star-off { color: #d0d0d0; }
+
+.rating-score {
+    font-weight: 800;
+    font-size: 0.92rem;
+    color: var(--text);
+}
+.rating-max { font-size: 0.75rem; color: var(--muted-text); font-weight: 400; }
+.rating-count { font-size: 0.8rem; color: var(--muted-text); }
+
 .rest-address, .rest-phone {
     font-size: 0.86rem;
     color: var(--muted-text);
