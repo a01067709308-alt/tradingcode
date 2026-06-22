@@ -122,10 +122,13 @@ const scoreRestaurant = (category, hour, weatherType) => {
 /* ── 카카오 API ── */
 const KAKAO_KEY = '803fc99d6c59c84dd43e09d5815dcf8b';
 
+const CAFE_KEYWORDS = ['카페', '베이커리', '디저트', '커피', '제과', '빵'];
+const isCafe = (categoryName) => CAFE_KEYWORDS.some(k => categoryName.includes(k));
+
 const kakaoSearch = async (lat, lon) => {
     const params = new URLSearchParams({
         category_group_code: 'FD6',
-        y: lat, x: lon, radius: 800, size: 10, sort: 'distance'
+        y: lat, x: lon, radius: 1000, size: 15, sort: 'distance'
     });
     const res = await fetch(
         `https://dapi.kakao.com/v2/local/search/category.json?${params}`,
@@ -134,7 +137,7 @@ const kakaoSearch = async (lat, lon) => {
     if (!res.ok) throw new Error(`Kakao ${res.status}`);
     const data = await res.json();
     return (data.documents || [])
-        .filter(r => r.x && r.y)
+        .filter(r => r.x && r.y && !isCafe(r.category_name))
         .map(r => ({
             name: r.place_name,
             category: r.category_name.split(' > ').pop(),
@@ -151,7 +154,7 @@ const kakaoSearch = async (lat, lon) => {
 
 /* ── Overpass 백업 ── */
 const overpassSearch = async (lat, lon) => {
-    const query = `[out:json][timeout:10];(node["amenity"~"^(restaurant|fast_food|cafe)$"](around:800,${lat},${lon}););out body 10;`;
+    const query = `[out:json][timeout:10];(node["amenity"~"^(restaurant|fast_food)$"](around:1000,${lat},${lon}););out body 15;`;
     const res = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: query });
     if (!res.ok) throw new Error('Overpass API 오류');
     const data = await res.json();
@@ -171,7 +174,10 @@ const overpassSearch = async (lat, lon) => {
         }));
 };
 
-/* ── 음식점 검색 + 날씨·시간 정렬 + 별점 → top 3 ── */
+/* ── 다시찾기용 제외 목록 ── */
+const shownSet = new Set();
+
+/* ── 음식점 검색 + 날씨·시간 정렬 → top 3 ── */
 const fetchRestaurants = async (lat, lon, hour, weatherType) => {
     let items = [];
     try {
@@ -190,10 +196,18 @@ const fetchRestaurants = async (lat, lon, hour, weatherType) => {
             const { score, reason } = scoreRestaurant(r.category, hour, weatherType);
             return { ...r, score, reason };
         })
-        .sort((a, b) => b.score !== a.score ? b.score - a.score : a.distance - b.distance)
-        .slice(0, 3);
+        .sort((a, b) => b.score !== a.score ? b.score - a.score : a.distance - b.distance);
 
-    return scored;
+    // 이미 보여준 음식점 제외 → 없으면 초기화 후 전체에서 선택
+    let candidates = scored.filter(r => !shownSet.has(r.name));
+    if (candidates.length < 3) {
+        shownSet.clear();
+        candidates = scored;
+    }
+
+    const top3 = candidates.slice(0, 3);
+    top3.forEach(r => shownSet.add(r.name));
+    return top3;
 };
 
 /* ── 위치명 ── */
