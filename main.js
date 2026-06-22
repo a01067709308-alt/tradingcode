@@ -166,39 +166,44 @@ const fetchLocationName = async (lat, lon) => {
     }
 };
 
-// OpenStreetMap(Overpass)으로 주변 음식점 조회 — Google/Naver Maps API 키 없이 무료 사용
-// 추후 Google Places API나 Naver Local API로 교체 가능
+// 카카오 로컬 API로 주변 음식점 조회
+const KAKAO_KEY = '803fc99d6c59c84dd43e09d5815dcf8b';
+
 const fetchNearbyRestaurants = async (lat, lon) => {
-    const query = `[out:json][timeout:6];
-(node["amenity"~"^(restaurant|cafe|fast_food|food_court)$"](around:600,${lat},${lon}););
-out tags 40;`;
     try {
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 7000);
-        const res = await fetch('https://overpass-api.de/api/interpreter', {
-            method: 'POST', body: query, signal: controller.signal
+        const params = new URLSearchParams({
+            category_group_code: 'FD6', // 음식점
+            y: lat, x: lon,
+            radius: 600,
+            size: 15
         });
-        clearTimeout(timer);
+        const res = await fetch(`https://dapi.kakao.com/v2/local/search/category.json?${params}`, {
+            headers: { 'Authorization': `KakaoAK ${KAKAO_KEY}` }
+        });
+        if (!res.ok) throw new Error('Kakao API error');
         const data = await res.json();
-        return data.elements || [];
+        return data.documents || [];
     } catch {
         return []; // 실패 시 날씨만으로 추천
     }
 };
 
+const KAKAO_CUISINE_MAP = {
+    '한식': 'korean', '분식': 'korean', '해장국': 'korean', '삼겹살': 'korean',
+    '치킨': 'fast_food', '패스트푸드': 'fast_food', '버거': 'fast_food',
+    '일식': 'japanese', '돈까스': 'japanese', '초밥': 'japanese', '라멘': 'japanese',
+    '중식': 'chinese',
+    '양식': 'western', '이탈리안': 'italian', '피자': 'italian', '파스타': 'italian',
+    '카페': 'cafe', '베이커리': 'cafe',
+};
+
 const parseCuisines = (restaurants) => {
     const counts = {};
     restaurants.forEach((r) => {
-        const cuisine = r.tags?.cuisine;
-        if (cuisine) {
-            cuisine.split(/[;,]/).forEach((c) => {
-                const t = c.trim().toLowerCase();
-                if (t) counts[t] = (counts[t] || 0) + 1;
-            });
-        }
-        if (r.tags?.amenity === 'fast_food') {
-            counts['fast_food'] = (counts['fast_food'] || 0) + 1;
-        }
+        const category = r.category_name || '';
+        Object.entries(KAKAO_CUISINE_MAP).forEach(([kor, eng]) => {
+            if (category.includes(kor)) counts[eng] = (counts[eng] || 0) + 1;
+        });
     });
     return counts;
 };
